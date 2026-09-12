@@ -2,6 +2,10 @@
 
 A [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) Web UI plugin that turns the sidebar into a compact top bar on mobile screens, to save some precious space on small devices.
 
+<p align="center">
+  <img src="example.png" alt="DSH mobile top bar: hamburger menu, brand mark, and new-session button replacing the sidebar" width="360">
+</p>
+
 ## Why
 
 DSH's left sidebar (session list, workspaces, settings) reserves a real grid column even in its collapsed "rail" state. On a phone that's a meaningful chunk of a small screen given up permanently. This plugin removes that reserved space on narrow viewports and replaces it with a small, familiar top bar instead.
