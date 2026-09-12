@@ -1,0 +1,38 @@
+{
+  "name": "dsh-mobile-topbar",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness plugin: turns the sidebar into a compact top bar on mobile screens to save space",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ],
+      "platform": "web"
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "mobile",
+    "sidebar",
+    "topbar",
+    "responsive"
+  ],
+  "license": "MIT"
+}

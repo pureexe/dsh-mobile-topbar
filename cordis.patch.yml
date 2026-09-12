@@ -1,0 +1,6 @@
+# Applied when a profile lists `dsh-mobile-topbar` in its dsh.profile.bundles
+# (see the profile's package.json). Inserts the plugin as a single dual-face
+# loader row: the host half is a no-op, the browser half does the real work.
+- insert:
+    - id: mobile-topbar
+      name: dsh-mobile-topbar
