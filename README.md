@@ -30,7 +30,7 @@ Screens **wider than 768px** are completely unaffected — this plugin only chan
 From your DSH profile directory (or via `dsh plugin --profile <name> add`, which forwards to `pnpm` inside the profile):
 
 ```sh
-dsh plugin --profile web add github:<you>/dsh-mobile-topbar
+dsh plugin --profile web add github:pureexe/dsh-mobile-topbar
 # or, from a local checkout:
 dsh plugin --profile web add /path/to/dsh-mobile-topbar
 ```
