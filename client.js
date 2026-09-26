@@ -208,6 +208,16 @@ window.__ModuleLoader__.load({
 				h("path", { d: "M3 5.5h14M3 10h14M3 14.5h14", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" }));
 		}
 
+		// dsh 0.1.7 renamed the size-suffixed icon exports: the old
+		// IconNewChatOutline16 is now IconNewChatOutlineRegular /
+		// IconNewChatOutlineMedium (both take a `size` prop, not width/height).
+		// Resolve defensively so a future rename degrades to the fish logo
+		// instead of throwing "Element type is invalid" inside React.
+		const NewChatIcon = primitives.IconNewChatOutlineRegular
+			?? primitives.IconNewChatOutlineMedium
+			?? primitives.IconNewChatOutline
+			?? primitives.FishLogo;
+
 		function TopBar({ onToggleSidebar, onNewSession }) {
 			return h("div", { className: "my-dsh-mobile-topbar" },
 				h("button", {
@@ -225,7 +235,7 @@ window.__ModuleLoader__.load({
 					className: "my-dsh-topbar-btn",
 					"aria-label": "New session",
 					onClick: onNewSession,
-				}, h(primitives.IconNewChatOutline16, { size: 20 })));
+				}, h(NewChatIcon, { size: 20 })));
 		}
 
 		/**
