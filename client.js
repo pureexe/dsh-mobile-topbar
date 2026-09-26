@@ -208,12 +208,15 @@ window.__ModuleLoader__.load({
 				h("path", { d: "M3 5.5h14M3 10h14M3 14.5h14", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" }));
 		}
 
-		// dsh 0.1.7 renamed the size-suffixed icon exports: the old
-		// IconNewChatOutline16 is now IconNewChatOutlineRegular /
-		// IconNewChatOutlineMedium (both take a `size` prop, not width/height).
-		// Resolve defensively so a future rename degrades to the fish logo
-		// instead of throwing "Element type is invalid" inside React.
-		const NewChatIcon = primitives.IconNewChatOutlineRegular
+		// The new-chat icon's export name changed across dsh generations:
+		// 0.1.5/0.1.6 primitives export `IconNewChatOutline16`, while 0.1.7
+		// renamed it to `IconNewChatOutlineRegular` / `IconNewChatOutlineMedium`
+		// (all take a `size` prop, not width/height). Try each generation's
+		// name in turn so the button shows the real icon on either, and a
+		// future rename degrades to the fish logo instead of throwing
+		// "Element type is invalid" inside React.
+		const NewChatIcon = primitives.IconNewChatOutline16
+			?? primitives.IconNewChatOutlineRegular
 			?? primitives.IconNewChatOutlineMedium
 			?? primitives.IconNewChatOutline
 			?? primitives.FishLogo;
