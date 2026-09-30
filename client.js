@@ -7,7 +7,11 @@
  * real DeepSeek Harness brand mark + wordmark next to it (the same SVGs the
  * sidebar itself renders), and a new-session button (right, the sidebar's
  * own new-chat icon). Tapping outside the open drawer (or the hamburger
- * again) closes it. On wider screens, behavior is untouched.
+ * again) closes it. The right-hand preview/panel is not left inside its
+ * (zero-width on mobile) grid column: it becomes a full-width fixed sheet
+ * below the top bar, opened by the conversation's own expand control and
+ * closed by its own collapse button or by the hamburger. On wider screens,
+ * behavior is untouched.
  */
 
 window.__ModuleLoader__.load({
@@ -29,9 +33,12 @@ window.__ModuleLoader__.load({
 /* ===== Mobile top bar + off-canvas sidebar drawer ===== */
 @media (max-width: 768px) {
 	/* The sidebar never reserves grid space on mobile; it becomes a drawer.
-	   The frame gains top padding to make room for our fixed top bar. */
+	   The right column is pinned to 0px as well -- the right panel escapes
+	   it as a fixed sheet (below), so neither side steals horizontal space
+	   from the conversation on a narrow screen. The frame gains top padding
+	   to make room for our fixed top bar. */
 	.pI_x6G_frame {
-		grid-template-columns: 0px minmax(0, 1fr) !important;
+		grid-template-columns: 0px minmax(0, 1fr) 0px !important;
 		padding-top: ${TOPBAR_HEIGHT}px !important;
 		box-sizing: border-box !important;
 	}
@@ -91,18 +98,30 @@ window.__ModuleLoader__.load({
 		pointer-events: auto;
 	}
 
-	/* The right sidebar (file/document preview) renders at the frame's true
-	   top edge regardless of the frame's own padding-top -- its own CSS
-	   positions it absolute/fixed off the padding box, which padding doesn't
-	   move. Push it below our top bar and keep it under the bar in stacking
-	   order so the bar stays reachable while it's open. */
+	/* The right panel (file/document preview) is an absolutely-positioned
+	   child of the frame's right column, which is 0px wide on mobile. Its
+	   React-set inline width follows the seat's auto-fullscreen rule
+	   (100vw when the viewport reads < 768px, the computed column width
+	   otherwise) -- so whenever that rule does not fire on a narrow device
+	   (a stale viewport width, a rotated or zoomed page, a 769px-plus
+	   window whose column collapsed), the panel is a zero-width sliver at
+	   the right edge while the corner expand button has already unmounted
+	   itself: nothing appears, no error is thrown -- "the button just goes
+	   away". Force a fixed full-width sheet below the top bar instead:
+	   fixed positioning ignores the 0px column, and !important overrides the
+	   inline width (and the Windows-titlebar max-width) in every state.
+	   While collapsed, the core CSS keeps the panel's children
+	   visibility:hidden and the panel itself pointer-events:none, so the
+	   closed sheet is invisible and inert. It stays under the top bar in
+	   stacking order so the bar stays reachable while it's open. */
 	.P3OORG_panel {
+		position: fixed !important;
 		top: ${TOPBAR_HEIGHT}px !important;
-		z-index: 950 !important;
-	}
-	.P3OORG_panel[data-sidebar-right-panel="fullscreen"] {
-		top: ${TOPBAR_HEIGHT}px !important;
-		height: calc(100% - ${TOPBAR_HEIGHT}px) !important;
+		left: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		width: auto !important;
+		max-width: none !important;
 		z-index: 950 !important;
 	}
 
@@ -256,11 +275,28 @@ window.__ModuleLoader__.load({
 				const root = react_dom.createRoot(container);
 				root.render(h(TopBar, {
 					onToggleSidebar: () => {
-						// On mobile the right sidebar goes fullscreen above the left
-						// drawer's z-index, so opening the left drawer while the right
-						// one is up would render it invisibly underneath. Close the
-						// right sidebar first so the left drawer is the thing that
-						// actually becomes visible.
+						// The right panel is a fixed sheet *above* the left drawer's
+						// z-index, so opening the drawer while the panel is up would
+						// leave it covering the drawer. Collapse the panel through
+						// its own action first: the seat re-opens the panel from the
+						// store's expanded flag whenever the layout flags reset, so
+						// layout.closeRightbar() alone would let it come straight
+						// back. If the service isn't there (older host), click the
+						// panel's own collapse button directly.
+						let closed = false;
+						try {
+							const sidebarRight = ctx.get("sidebarRight");
+							if (sidebarRight && typeof sidebarRight.isExpanded === "function" && sidebarRight.isExpanded()) {
+								sidebarRight.toggleExpanded();
+								closed = true;
+							}
+						} catch (_err) {
+							// No mounted session surface: fall through to the DOM path.
+						}
+						if (!closed) {
+							const toggle = document.querySelector(".P3OORG_panel[data-sidebar-right-open] [data-sidebar-right-toggle]");
+							if (toggle) toggle.click();
+						}
 						const layout = ctx.get("layout");
 						layout.closeRightbar();
 						layout.toggleSidebar();

@@ -1,6 +1,6 @@
 {
   "name": "dsh-mobile-topbar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DeepSeek Harness plugin: turns the sidebar into a compact top bar on mobile screens to save space",
   "type": "module",
   "main": "index.js",

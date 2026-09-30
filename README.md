@@ -20,8 +20,9 @@ On screens **768px wide or narrower**:
   - **Middle**: the DeepSeek Harness brand mark and wordmark (the same SVGs the sidebar itself renders)
   - **Right**: a new-session button (the sidebar's own new-chat icon)
 - Opening the drawer shows a backdrop; tapping it (or the hamburger again) closes the drawer.
-- The right sidebar (file/document preview) and the Settings modal are both repositioned so neither renders underneath the top bar.
-- Opening the sidebar while the right panel is open closes the right panel first, so the drawer is what actually becomes visible.
+- The right panel (file/document preview) becomes a **full-width fixed sheet** below the top bar. On mobile it would otherwise live in a zero-width grid column and its own inline width can collapse to 0px, leaving a zero-width sliver after the corner expand button has hidden itself — the button appears to "just go away" with no panel and no error. The sheet is opened by the conversation's own expand control and closed by the panel's own collapse button or by the hamburger.
+- The Settings modal is repositioned so it doesn't render underneath the top bar.
+- Opening the sidebar while the right panel is open collapses the right panel through its own action first, so the drawer is what actually becomes visible.
 
 Screens **wider than 768px** are completely unaffected — this plugin only changes anything below that breakpoint.
 
@@ -58,7 +59,7 @@ Restart the profile (e.g. `dsh web`) to pick it up.
 This is a small dual-face DSH plugin:
 
 - `index.js` — the host-side loader row (a no-op; this plugin only touches the browser).
-- `client.js` — the browser half. It injects scoped CSS to reposition the sidebar/right-panel/settings-modal chrome on mobile, and mounts a small React-rendered top bar that calls the existing `layout` and `uiWorkspace` services (`toggleSidebar`, `closeRightbar`, `startSession`) rather than reimplementing any of that logic.
+- `client.js` — the browser half. It injects scoped CSS to reposition the sidebar/right-panel/settings-modal chrome on mobile (the right panel becomes a fixed full-width sheet), and mounts a small React-rendered top bar that calls the existing `layout` and `uiWorkspace` services (`toggleSidebar`, `closeRightbar`, `startSession`) — and, lazily at tap time, the `sidebarRight` service (`isExpanded`, `toggleExpanded`) to collapse the right panel through its own action — rather than reimplementing any of that logic.
 - `cordis.patch.yml` — inserts this package as a single loader row when a profile lists it as a bundle.
 
 No sidebar/frame internals are duplicated or forked; the plugin only adds CSS overrides (targeting the app's existing, versioned class names) and reuses the app's own icon/brand components and layout services.
@@ -72,6 +73,7 @@ Verified to work on:
 | 0.1.5-rc.3    | ✅ full — same icon names, CSS class hashes, and `layout`/`uiWorkspace` services as 0.1.7 |
 | 0.1.6-alpha.x | ✅ full — same client surface as 0.1.5             |
 | 0.1.7-rc.x    | ✅ full — the new-chat icon export was renamed in this line; `client.js` resolves `IconNewChatOutline16` / `IconNewChatOutlineRegular` / `IconNewChatOutlineMedium` in order, so the button shows the right icon on either generation |
+| 0.2.0-rc.2    | ✅ full — the client module graph and the `layout`/`uiWorkspace` services are unchanged from 0.1.7; the right panel (`.P3OORG_panel`, same hash) renders as a full-width fixed sheet below the top bar, opened by the conversation's own expand control and closed by the panel's collapse button or the hamburger |
 
 - **Older DSH (pre-0.1.5, before the `dsh.profile.bundles` / `dsh.client` mechanism):** the plugin is simply never loaded; it stays an inert line in your profile's `package.json`. Nothing breaks.
 - **This plugin deliberately declares no `peerDependencies`:** the packages it consumes (`dsh-client-ui-primitives`, and the `layout`/`uiWorkspace` services from `dsh-client-ui-layout` / `dsh-client-ui-workspace`) ship inside the host DSH install rather than the profile's dependency tree, so version-range peers would fail resolution and block installation on perfectly good hosts.
